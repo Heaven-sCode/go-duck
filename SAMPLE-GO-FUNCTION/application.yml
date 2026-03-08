@@ -1,0 +1,74 @@
+go-duck:
+  name: go-duck
+  version: 1.0.0
+  description: go function generator
+  security:
+    keycloak-host: http://localhost:9080
+    keycloak-realm: master
+    keycloak-client-id: internal
+    keycloak-secret: internal
+    rate-limit:
+      rps: 100
+      burst: 200
+  multitenancy:
+    enabled: true
+  datasource:
+    host: localhost
+    port: 5432
+    username: postgres
+    password: password
+    database: go-duck
+    max-open-conns: 25
+    max-idle-conns: 10
+    conn-max-lifetime: 5m
+  server:
+    port: 8080
+    read-timeout: 30s
+    write-timeout: 30s
+    cors:
+      allow-origins:
+        - '*'
+      allow-methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      allow-headers:
+        - Origin
+        - Content-Type
+        - Accept
+        - Authorization
+  logging:
+    datadog:
+      enabled: false
+      api-key: YOUR_DATADOG_API_KEY
+      site: datadoghq.com
+      service: go-duck
+  messaging:
+    mqtt:
+      enabled: false
+      broker: tcp://localhost:1883
+      client-id: go-duck-dev
+      username: dev_user
+      password: dev_password
+      topic-prefix: go-duck/events
+  cache:
+    redis:
+      enabled: false
+      host: localhost:6379
+      password: ''
+      db: 0
+      ttl: 10m
+  resilience:
+    circuit-breaker:
+      enabled: true
+      failure-threshold: 5
+      success-threshold: 2
+      timeout: 60s
+  telemetry:
+    otel:
+      enabled: false
+      endpoint: localhost:4317
+      sampler-ratio: 1

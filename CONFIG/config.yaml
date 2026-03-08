@@ -1,0 +1,23 @@
+
+app:
+  name: go-duck
+  version: 1.0.0
+  description: go function generator
+  security:
+    keycloak-host: http://localhost:9080
+    keycloak-realm: master
+    keycloak-client-id: internal
+    keycloak-secret: internal
+  multitenancy:
+    enabled: true
+  datasource:
+    host: localhost
+    port: 5432
+    username: postgres
+    password: password
+    database: go-duck 
+
+    
+
+    
+    
