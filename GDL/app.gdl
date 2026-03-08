@@ -1,0 +1,20 @@
+
+@AutoWired
+entity Car{
+    name String required
+    model String required
+    year Integer required
+    price Float required
+    color String
+}
+
+@AutoWired
+entity Person{
+    name String required
+    age Integer required
+    email String required
+}
+
+relationship OneToMany {
+    Person{cars} to Car{person}
+}

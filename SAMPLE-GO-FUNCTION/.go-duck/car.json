@@ -1,0 +1,56 @@
+{
+  "name": "Car",
+  "annotation": "@AutoWired",
+  "fields": [
+    {
+      "name": "name",
+      "type": "String",
+      "required": true,
+      "unique": false,
+      "varcharSize": 255
+    },
+    {
+      "name": "model",
+      "type": "String",
+      "required": true,
+      "unique": false,
+      "varcharSize": 255
+    },
+    {
+      "name": "year",
+      "type": "Integer",
+      "required": true,
+      "unique": false,
+      "varcharSize": null
+    },
+    {
+      "name": "price",
+      "type": "Float",
+      "required": true,
+      "unique": false,
+      "varcharSize": null
+    },
+    {
+      "name": "color",
+      "type": "String",
+      "required": false,
+      "unique": false,
+      "varcharSize": 255
+    }
+  ],
+  "relationships": [
+    {
+      "type": "OneToMany",
+      "from": {
+        "entity": "Person",
+        "field": "cars"
+      },
+      "to": {
+        "entity": "Car",
+        "field": "person"
+      },
+      "required": false
+    }
+  ],
+  "app_name": "go-duck"
+}
