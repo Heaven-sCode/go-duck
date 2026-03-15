@@ -3,7 +3,7 @@ import path from 'path';
 import chalk from 'chalk';
 import Handlebars from 'handlebars';
 
-export const generateGraphQLCode = async (config, entities, relationships, outputDir) => {
+export const generateGraphQLCode = async (config, entities, relationships, outputDir, enums = []) => {
     const graphDir = path.join(outputDir, 'graph');
     await fs.ensureDir(graphDir);
 
@@ -14,7 +14,7 @@ export const generateGraphQLCode = async (config, entities, relationships, outpu
     if (await fs.pathExists(schemaTemplatePath)) {
         const schemaTemplateSource = await fs.readFile(schemaTemplatePath, 'utf8');
         const schemaTemplate = Handlebars.compile(schemaTemplateSource);
-        const schemaContent = schemaTemplate({ entities, relationships });
+        const schemaContent = schemaTemplate({ entities, relationships, enums });
         await fs.writeFile(path.join(graphDir, 'schema.graphqls'), schemaContent);
         console.log(chalk.gray('  Generated GraphQL Schema: schema.graphqls'));
     }
@@ -27,7 +27,8 @@ export const generateGraphQLCode = async (config, entities, relationships, outpu
         const resolverContent = resolverTemplate({
             app_name: config.name,
             entities,
-            relationships
+            relationships,
+            enums
         });
         await fs.writeFile(path.join(graphDir, 'resolver.go'), resolverContent);
         console.log(chalk.gray('  Generated GraphQL Resolvers: resolver.go'));

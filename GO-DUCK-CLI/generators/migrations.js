@@ -3,7 +3,7 @@ import path from 'path';
 import chalk from 'chalk';
 import { toLiquibaseType } from '../parser/gdl.js';
 
-export const generateLiquibaseChangelogs = async (entities, relationships, projectRootDir, delta = null) => {
+export const generateLiquibaseChangelogs = async (entities, relationships, projectRootDir, delta = null, enums = []) => {
     const migrationsDir = path.join(projectRootDir, 'migrations');
     const liquibaseDir = path.join(migrationsDir, 'liquibase');
     const changelogsDir = path.join(liquibaseDir, 'changelogs');
@@ -30,7 +30,7 @@ export const generateLiquibaseChangelogs = async (entities, relationships, proje
             </column>`;
 
         for (const field of entity.fields) {
-            const liqType = toLiquibaseType(field);
+            const liqType = toLiquibaseType(field, enums);
             const uniqueConstraint = field.unique ? ' <constraints nullable="' + (field.required ? 'false' : 'true') + '" unique="true"/>' : '';
             if (field.unique) {
                 columns += `
@@ -75,7 +75,7 @@ export const generateLiquibaseChangelogs = async (entities, relationships, proje
             if (fields.length === 0) continue;
             let columnTags = '';
             for (const field of fields) {
-                const liqType = toLiquibaseType(field);
+                const liqType = toLiquibaseType(field, enums);
                 if (field.unique) {
                     columnTags += `
             <column name="${field.name.toLowerCase()}" type="${liqType}">

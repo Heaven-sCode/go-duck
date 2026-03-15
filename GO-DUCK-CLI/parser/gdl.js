@@ -24,17 +24,25 @@ export const parseGDL = async (filePath) => {
     const content = await fs.readFile(filePath, 'utf8');
     const entities = [];
     const relationships = [];
+    const enums = [];
+
+    // Parse enum blocks
+    const enumRegex = /enum\s+(\w+)\s*\{([\s\S]*?)\}/g;
+    let match;
+    while ((match = enumRegex.exec(content)) !== null) {
+        const name = match[1];
+        const values = match[2].split(',').map(v => v.trim().replace(/['"]/g, '')).filter(v => v.length > 0);
+        enums.push({ name, values });
+    }
 
     // Parse entity blocks
     const entityRegex = /(@\w+\s+)?entity\s+(\w+)\s*\{([\s\S]*?)\}/g;
-    let match;
-
     while ((match = entityRegex.exec(content)) !== null) {
         const annotation = match[1]?.trim();
         const name = match[2];
         const fieldBlock = match[3];
 
-        if (name === 'relationship') continue;
+        if (name === 'relationship' || name === 'enum') continue;
 
         const fields = [];
         const fieldLines = fieldBlock.split('\n').map(l => l.trim()).filter(l => l.length > 0);
@@ -58,11 +66,15 @@ export const parseGDL = async (filePath) => {
             const unique = line.includes('unique');
             const isText = rawType === 'Text';
 
+            // Check if type is an Enum
+            const isEnum = enums.some(e => e.name === rawType);
+
             fields.push({
                 name: fieldName,
                 type: isText ? 'Text' : rawType,
                 required,
                 unique,
+                isEnum,
                 varcharSize: rawType === 'String' ? varcharSize : null,
             });
         }
@@ -98,13 +110,16 @@ export const parseGDL = async (filePath) => {
         }
     }
 
-    return { entities, relationships };
+    return { entities, relationships, enums };
 };
 
 /**
  * Maps GDL type to Go type
  */
-export const toGoType = (type) => {
+export const toGoType = (type, enums = []) => {
+    const isEnum = enums.some(e => e.name === type);
+    if (isEnum) return type;
+
     const map = {
         String: 'string',
         Text: 'string',
@@ -124,9 +139,13 @@ export const toGoType = (type) => {
 /**
  * Maps GDL type to Liquibase/SQL type
  */
-export const toLiquibaseType = (field) => {
+export const toLiquibaseType = (field, enums = []) => {
     if (field.type === 'Text') return 'TEXT';
     if (field.type === 'String' && field.varcharSize) return `VARCHAR(${field.varcharSize})`;
+    
+    // Enums are stored as VARCHAR with a check constraint or just as strings
+    if (field.isEnum) return 'VARCHAR(50)';
+
     const map = {
         String: 'VARCHAR(255)',
         Integer: 'INT',

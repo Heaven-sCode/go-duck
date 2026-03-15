@@ -6,6 +6,7 @@
       "type": "String",
       "required": true,
       "unique": false,
+      "isEnum": false,
       "varcharSize": 255
     },
     {
@@ -13,6 +14,7 @@
       "type": "String",
       "required": false,
       "unique": false,
+      "isEnum": false,
       "varcharSize": 255
     },
     {
@@ -20,6 +22,7 @@
       "type": "String",
       "required": false,
       "unique": true,
+      "isEnum": false,
       "varcharSize": 255
     },
     {
@@ -27,6 +30,7 @@
       "type": "Integer",
       "required": false,
       "unique": false,
+      "isEnum": false,
       "varcharSize": null
     },
     {
@@ -34,6 +38,7 @@
       "type": "JSON",
       "required": false,
       "unique": false,
+      "isEnum": false,
       "varcharSize": null
     }
   ],
@@ -51,5 +56,6 @@
       "required": true
     }
   ],
-  "app_name": "go-duck"
+  "app_name": "go-duck",
+  "enums": []
 }

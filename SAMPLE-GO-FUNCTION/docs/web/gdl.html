@@ -106,9 +106,14 @@
 entity Article {
   title String required unique
   content Text required
+  status ArticleStatus required
   publishedDate LocalDate
   views Integer
   metadata JSONB
+}
+
+enum ArticleStatus {
+  DRAFT, PUBLISHED, ARCHIVED
 }
 
 entity Author {
@@ -154,8 +159,32 @@ relationship OneToMany {
                 <tr class="hover:bg-slate-50 transition-colors"><td class="p-4 font-semibold font-mono text-indigo-600">Boolean</td><td class="p-4"><code class="bg-slate-100 px-1 py-0.5 rounded text-xs text-slate-800">bool</code></td><td class="p-4">BOOLEAN</td><td class="p-4">Boolean / bool</td></tr>
                 <tr class="hover:bg-slate-50 transition-colors"><td class="p-4 font-semibold font-mono text-indigo-600">LocalDate</td><td class="p-4"><code class="bg-slate-100 px-1 py-0.5 rounded text-xs text-slate-800">time.Time</code></td><td class="p-4">DATE</td><td class="p-4">String / string</td></tr>
                 <tr class="hover:bg-slate-50 transition-colors"><td class="p-4 font-semibold font-mono text-indigo-600">Instant</td><td class="p-4"><code class="bg-slate-100 px-1 py-0.5 rounded text-xs text-slate-800">time.Time</code></td><td class="p-4">TIMESTAMP</td><td class="p-4">String / string</td></tr>
+                <tr class="hover:bg-slate-50 transition-colors"><td class="p-4 font-semibold font-mono text-indigo-600">Enum</td><td class="p-4"><code class="bg-slate-100 px-1 py-0.5 rounded text-xs text-slate-800">CustomType</code></td><td class="p-4">VARCHAR(50)</td><td class="p-4">String / string</td></tr>
             </tbody>
         </table>
+    </div>
+</section>
+
+<section class="mb-12">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center">
+        <span class="w-8 h-8 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center mr-3 text-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+        </span>
+        Enumerations
+    </h2>
+    <p class="mb-6 text-slate-600 leading-relaxed">GDL supports custom Enum types for fields that have a predefined set of allowed values. Enums are generated as Go types with constants and mapped to safe string columns in the database.</p>
+    
+    <div class="bg-[#1e1e1e] rounded-xl overflow-hidden shadow-lg">
+        <div class="p-5 overflow-x-auto text-sm text-slate-300">
+<pre><code class="language-plaintext">enum Language {
+  ENGLISH, FRENCH, GERMAN
+}
+
+entity Person {
+  name String required
+  nativeLanguage Language
+}</code></pre>
+        </div>
     </div>
 </section>
 
@@ -198,6 +227,73 @@ relationship OneToMany {
             <h4 class="font-semibold text-blue-900 mb-1">Golden Rule</h4>
             <p class="text-blue-800 text-sm leading-relaxed mb-2">Avoid editing Liquibase XML manually unless correcting an anomaly. Let the GDL manage your migrations.</p>
         </div>
+    </div>
+</section>
+
+<section class="mb-12">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center">
+        <span class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3 text-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+        </span>
+        Managing Relationships
+    </h2>
+    <p class="mb-6 text-slate-600 leading-relaxed">Relationships in GDL define how entities connect at the database level (foreign keys) and how they are represented in Go structs and GraphQL schemas. Just like JHipster, we support four primary types.</p>
+
+    <!-- One-to-Many -->
+    <div class="mb-8">
+        <h3 class="text-xl font-semibold text-slate-800 mb-4 flex items-center">
+            One-to-Many
+            <span class="ml-3 px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wider">Most Common</span>
+        </h3>
+        <p class="text-slate-600 mb-4 text-sm bg-slate-50 p-3 border-l-4 border-blue-400 rounded-r-lg">Example: An <code class="font-bold">Author</code> has many <code class="font-bold">Articles</code>.</p>
+        <div class="bg-[#1e1e1e] rounded-xl overflow-hidden shadow-lg">
+            <div class="p-4 overflow-x-auto text-sm">
+<pre><code class="language-plaintext">relationship OneToMany {
+  Author{article} to Article{author}
+}</code></pre>
+            </div>
+        </div>
+        <p class="mt-4 text-sm text-slate-500 italic">This generates a <code>author_id</code> foreign key in the <code>article</code> table and a slice of Articles in the Author struct.</p>
+    </div>
+
+    <!-- Many-to-One -->
+    <div class="mb-8">
+        <h3 class="text-xl font-semibold text-slate-800 mb-4">Many-to-One</h3>
+        <p class="text-slate-600 mb-4 text-sm bg-slate-50 p-3 border-l-4 border-slate-300 rounded-r-lg">Essentially the inverse of One-to-Many, used to specify the owner side explicitly.</p>
+        <div class="bg-[#1e1e1e] rounded-xl overflow-hidden shadow-lg">
+            <div class="p-4 overflow-x-auto text-sm">
+<pre><code class="language-plaintext">relationship ManyToOne {
+  Article{author} to Author
+}</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- One-to-One -->
+    <div class="mb-8">
+        <h3 class="text-xl font-semibold text-slate-800 mb-4">One-to-One</h3>
+        <p class="text-slate-600 mb-4 text-sm bg-slate-50 p-3 border-l-4 border-indigo-400 rounded-r-lg">Example: A <code class="font-bold">User</code> has exactly one <code class="font-bold">Profile</code>.</p>
+        <div class="bg-[#1e1e1e] rounded-xl overflow-hidden shadow-lg">
+            <div class="p-4 overflow-x-auto text-sm">
+<pre><code class="language-plaintext">relationship OneToOne {
+  User{profile} to Profile{user}
+}</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Many-to-Many -->
+    <div class="mb-8">
+        <h3 class="text-xl font-semibold text-slate-800 mb-4">Many-to-Many</h3>
+        <p class="text-slate-600 mb-4 text-sm bg-slate-50 p-3 border-l-4 border-purple-400 rounded-r-lg">Example: <code class="font-bold">Students</code> enrolled in many <code class="font-bold">Courses</code>.</p>
+        <div class="bg-[#1e1e1e] rounded-xl overflow-hidden shadow-lg">
+            <div class="p-4 overflow-x-auto text-sm">
+<pre><code class="language-plaintext">relationship ManyToMany {
+  Student{course} to Course{student}
+}</code></pre>
+            </div>
+        </div>
+        <p class="mt-4 text-sm text-slate-500 italic">This triggers the automatic generation of a join table (e.g., <code>student_course</code>) in Liquibase.</p>
     </div>
 </section>
 

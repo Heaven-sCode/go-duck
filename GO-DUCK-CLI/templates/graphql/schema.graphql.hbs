@@ -40,6 +40,14 @@ input Update{{name}}Input {
 }
 {{/each}}
 
+{{#each enums}}
+enum {{name}} {
+{{#each values}}
+  {{this}}
+{{/each}}
+}
+{{/each}}
+
 type Query {
 {{#each entities}}
 get{{capitalize name}}(id: ID!): {{name}}

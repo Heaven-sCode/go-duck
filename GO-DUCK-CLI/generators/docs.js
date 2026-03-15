@@ -4,7 +4,7 @@ import Handlebars from 'handlebars';
 import chalk from 'chalk';
 import { fileURLToPath } from 'url';
 
-export const generateDocumentation = async (config, entities, outputDir) => {
+export const generateDocumentation = async (config, entities, outputDir, enums = []) => {
     console.log(chalk.cyan('Generating Multi-Page Developer Guide Web App...'));
 
     const docsDir = path.join(outputDir, 'docs', 'web');
@@ -44,7 +44,8 @@ export const generateDocumentation = async (config, entities, outputDir) => {
 
     const context = {
         appName: config.name || 'GO-DUCK App',
-        entities: entities
+        entities: entities,
+        enums: enums
     };
 
     for (const page of pages) {

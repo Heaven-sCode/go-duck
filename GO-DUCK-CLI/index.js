@@ -163,9 +163,14 @@ Handlebars.registerHelper('toLowerCase', (str) => {
     return str.toLowerCase();
 });
 
-Handlebars.registerHelper('toGoType', (type) => {
+Handlebars.registerHelper('toGoType', (type, options) => {
+    const enums = options.data.root.enums || [];
+    const isEnum = enums.some(e => e.name === type);
+    if (isEnum) return type;
+
     const types = {
         'String': 'string',
+        'Text': 'string',
         'Integer': 'int',
         'Float': 'float64',
         'Boolean': 'bool',
@@ -179,7 +184,11 @@ Handlebars.registerHelper('toGoType', (type) => {
     return types[type] || 'interface{}';
 });
 
-Handlebars.registerHelper('gql_type', (type) => {
+Handlebars.registerHelper('gql_type', (type, options) => {
+    const enums = options.data.root.enums || [];
+    const isEnum = enums.some(e => e.name === type);
+    if (isEnum) return type;
+
     const types = {
         'String': 'String',
         'Integer': 'Int',
@@ -242,8 +251,8 @@ const generateEntities = async (gdlFilePath, outputDir, config) => {
         return null;
     }
 
-    const { entities, relationships } = await parseGDL(gdlFilePath);
-    console.log(chalk.green(`✅ Parsed ${entities.length} entities and ${relationships.length} relationships`));
+    const { entities, relationships, enums } = await parseGDL(gdlFilePath);
+    console.log(chalk.green(`✅ Parsed ${entities.length} entities, ${relationships.length} relationships, and ${enums.length} enums`));
 
     const previousEntities = await getPreviousEntities(outputDir);
     const delta = {
@@ -267,11 +276,9 @@ const generateEntities = async (gdlFilePath, outputDir, config) => {
     }
 
     // New relationships
-    // (Simplification: detect relationships whose from/to entities are involved in changes)
     delta.newRelationships = relationships.filter(rel => {
         const fromEntityCreated = delta.newEntities.some(e => e.name === rel.from.entity);
         const toEntityCreated = delta.newEntities.some(e => e.name === rel.to.entity);
-        // For simplicity, we just mark relationships involving new entities as new for DB creation
         return fromEntityCreated || toEntityCreated;
     });
 
@@ -283,12 +290,27 @@ const generateEntities = async (gdlFilePath, outputDir, config) => {
     const controllerTemplateSource = await fs.readFile(controllerTemplatePath, 'utf8');
     const controllerTemplate = Handlebars.compile(controllerTemplateSource);
 
+    const enumTemplatePath = path.resolve(path.dirname(import.meta.url.replace('file://', '')), 'templates/go/enum.go.hbs');
+    const enumTemplateSource = await fs.readFile(enumTemplatePath, 'utf8');
+    const enumTemplate = Handlebars.compile(enumTemplateSource);
+
     await fs.ensureDir(path.join(outputDir, 'models'));
     await fs.ensureDir(path.join(outputDir, 'controllers'));
+
+    // Generate Enums
+    if (enums.length > 0) {
+        let enumContent = 'package models\n\n';
+        for (const en of enums) {
+            enumContent += enumTemplate(en).trim() + '\n\n';
+        }
+        await fs.writeFile(path.join(outputDir, 'models', 'enums.go'), enumContent);
+        console.log(chalk.gray(`   - Generated Enums: models/enums.go`));
+    }
 
     for (const entity of entities) {
         entity.relationships = relationships.filter(r => r.from.entity === entity.name || r.to.entity === entity.name);
         entity.app_name = config.name;
+        entity.enums = enums; // Pass enums context for helpers
 
         // Generate Model
         const entityContent = entityTemplate(entity);
@@ -305,10 +327,10 @@ const generateEntities = async (gdlFilePath, outputDir, config) => {
     }
 
     // Generate Incremental Changelogs!
-    await generateLiquibaseChangelogs(entities, relationships, outputDir, delta);
+    await generateLiquibaseChangelogs(entities, relationships, outputDir, delta, enums);
     console.log(chalk.green('✅ Liquibase incremental migrations updated!'));
 
-    return { entities, relationships };
+    return { entities, relationships, enums };
 };
 
 program
@@ -335,12 +357,12 @@ program
         await generateTelemetryCode(config, absoluteOutputDir);
         await generateDeploymentArtifacts(config, absoluteOutputDir);
         await generateYAMLConfigs(config, absoluteOutputDir);
-        const { entities, relationships } = await generateEntities(path.join(path.resolve(process.cwd(), gdlDir), 'app.gdl'), absoluteOutputDir, config);
-        await generateKratosCode(entities, absoluteOutputDir, config.name);
+        const { entities, relationships, enums } = await generateEntities(path.join(path.resolve(process.cwd(), gdlDir), 'app.gdl'), absoluteOutputDir, config);
+        await generateKratosCode(entities, absoluteOutputDir, config.name, enums);
 
         await generateRepositoryCode(absoluteOutputDir);
 
-        await generateGraphQLCode(config, entities, relationships, absoluteOutputDir);
+        await generateGraphQLCode(config, entities, relationships, absoluteOutputDir, enums);
         if (config.multitenancy?.enabled) await generateMultitenancy(config, absoluteOutputDir);
         await generateAuditCode(config, absoluteOutputDir);
         await generateMeteringCode(config, absoluteOutputDir);
@@ -354,7 +376,7 @@ program
         console.log(chalk.green('✅ Swagger API documentation generated!'));
 
         // 8.5 Generate Web Docs App
-        await generateDocumentation(config, entities, absoluteOutputDir);
+        await generateDocumentation(config, entities, absoluteOutputDir, enums);
         console.log(chalk.green('✅ Web Documentation App generated!'));
 
         // 9. Generate main.go
@@ -384,12 +406,12 @@ program
         await generateResilienceCode(config, absoluteOutputDir);
         await generateTelemetryCode(config, absoluteOutputDir);
         await generateDeploymentArtifacts(config, absoluteOutputDir);
-        const { entities, relationships } = await generateEntities(path.resolve(process.cwd(), file), absoluteOutputDir, config);
-        await generateKratosCode(entities, absoluteOutputDir, config.name);
+        const { entities, relationships, enums } = await generateEntities(path.resolve(process.cwd(), file), absoluteOutputDir, config);
+        await generateKratosCode(entities, absoluteOutputDir, config.name, enums);
 
         await generateRepositoryCode(absoluteOutputDir);
 
-        await generateGraphQLCode(config, entities, relationships, absoluteOutputDir);
+        await generateGraphQLCode(config, entities, relationships, absoluteOutputDir, enums);
         // Sync PostgREST search as well
         await generatePostgRESTCode(config, absoluteOutputDir);
 
@@ -403,7 +425,7 @@ program
         await generateSwaggerDocs(config, entities, absoluteOutputDir);
 
         // Sync Web Docs App
-        await generateDocumentation(config, entities, absoluteOutputDir);
+        await generateDocumentation(config, entities, absoluteOutputDir, enums);
 
         // Regenerate main.go to include new routes if any (or just entities)
         const mainTemplatePath = path.resolve(path.dirname(import.meta.url.replace('file://', '')), 'templates/go/main.go.hbs');

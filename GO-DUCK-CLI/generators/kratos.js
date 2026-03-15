@@ -3,7 +3,7 @@ import path from 'path';
 import Handlebars from 'handlebars';
 import chalk from 'chalk';
 
-export const generateKratosCode = async (entities, projectRootDir, projectName) => {
+export const generateKratosCode = async (entities, projectRootDir, projectName, enums = []) => {
     console.log(chalk.cyan('Generating Kratos gRPC Services...'));
 
     const apiDir = path.join(projectRootDir, 'api', 'v1');
@@ -22,6 +22,10 @@ export const generateKratosCode = async (entities, projectRootDir, projectName) 
 
     // Helpers for Proto types
     Handlebars.registerHelper('toProtoType', (type) => {
+        const isEnum = enums.some(e => e.name === type);
+        // Map enums to string in proto to match the Go string enums for simpler POC
+        if (isEnum) return 'string';
+
         const map = {
             'String': 'string',
             'Integer': 'int32',
@@ -39,6 +43,9 @@ export const generateKratosCode = async (entities, projectRootDir, projectName) 
     });
 
     Handlebars.registerHelper('toGoCast', (type) => {
+        const isEnum = enums.some(e => e.name === type);
+        if (isEnum) return `models.${type}`;
+
         const map = {
             'Integer': 'int',
             'Long': 'int64',
@@ -52,6 +59,9 @@ export const generateKratosCode = async (entities, projectRootDir, projectName) 
     });
 
     Handlebars.registerHelper('toProtoCast', (type) => {
+        const isEnum = enums.some(e => e.name === type);
+        if (isEnum) return 'string';
+
         const map = {
             'Integer': 'int32',
             'Long': 'int64',
@@ -80,7 +90,8 @@ export const generateKratosCode = async (entities, projectRootDir, projectName) 
             capitalize: (s) => s.charAt(0).toUpperCase() + s.slice(1),
             lower: (s) => s.toLowerCase(),
             fields: entity.fields,
-            projectName
+            projectName,
+            enums
         };
 
         // 1. Generate Proto
