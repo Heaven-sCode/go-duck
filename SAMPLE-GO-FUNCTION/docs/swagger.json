@@ -12,18 +12,18 @@
     }
   ],
   "paths": {
-    "/articles": {
+    "/cars": {
       "post": {
         "tags": [
-          "Article"
+          "Car"
         ],
-        "summary": "Create a new Article",
+        "summary": "Create a new Car",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Article"
+                "$ref": "#/components/schemas/Car"
               }
             }
           }
@@ -34,7 +34,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Article"
+                  "$ref": "#/components/schemas/Car"
                 }
               }
             }
@@ -43,9 +43,9 @@
       },
       "get": {
         "tags": [
-          "Article"
+          "Car"
         ],
-        "summary": "Get all Articles",
+        "summary": "Get all Cars",
         "parameters": [
           {
             "name": "page",
@@ -77,7 +77,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Article"
+                    "$ref": "#/components/schemas/Car"
                   }
                 }
               }
@@ -86,12 +86,12 @@
         }
       }
     },
-    "/articles/{id}": {
+    "/cars/{id}": {
       "get": {
         "tags": [
-          "Article"
+          "Car"
         ],
-        "summary": "Get Article by ID",
+        "summary": "Get Car by ID",
         "parameters": [
           {
             "name": "id",
@@ -108,7 +108,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Article"
+                  "$ref": "#/components/schemas/Car"
                 }
               }
             }
@@ -117,9 +117,9 @@
       },
       "put": {
         "tags": [
-          "Article"
+          "Car"
         ],
-        "summary": "Update Article",
+        "summary": "Update Car",
         "parameters": [
           {
             "name": "id",
@@ -136,7 +136,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Article"
+                  "$ref": "#/components/schemas/Car"
                 }
               }
             }
@@ -145,9 +145,9 @@
       },
       "delete": {
         "tags": [
-          "Article"
+          "Car"
         ],
-        "summary": "Delete Article",
+        "summary": "Delete Car",
         "parameters": [
           {
             "name": "id",
@@ -165,18 +165,18 @@
         }
       }
     },
-    "/authors": {
+    "/persons": {
       "post": {
         "tags": [
-          "Author"
+          "Person"
         ],
-        "summary": "Create a new Author",
+        "summary": "Create a new Person",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Author"
+                "$ref": "#/components/schemas/Person"
               }
             }
           }
@@ -187,7 +187,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Author"
+                  "$ref": "#/components/schemas/Person"
                 }
               }
             }
@@ -196,9 +196,9 @@
       },
       "get": {
         "tags": [
-          "Author"
+          "Person"
         ],
-        "summary": "Get all Authors",
+        "summary": "Get all Persons",
         "parameters": [
           {
             "name": "page",
@@ -230,7 +230,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Author"
+                    "$ref": "#/components/schemas/Person"
                   }
                 }
               }
@@ -239,12 +239,12 @@
         }
       }
     },
-    "/authors/{id}": {
+    "/persons/{id}": {
       "get": {
         "tags": [
-          "Author"
+          "Person"
         ],
-        "summary": "Get Author by ID",
+        "summary": "Get Person by ID",
         "parameters": [
           {
             "name": "id",
@@ -261,7 +261,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Author"
+                  "$ref": "#/components/schemas/Person"
                 }
               }
             }
@@ -270,9 +270,9 @@
       },
       "put": {
         "tags": [
-          "Author"
+          "Person"
         ],
-        "summary": "Update Author",
+        "summary": "Update Person",
         "parameters": [
           {
             "name": "id",
@@ -289,7 +289,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Author"
+                  "$ref": "#/components/schemas/Person"
                 }
               }
             }
@@ -298,9 +298,9 @@
       },
       "delete": {
         "tags": [
-          "Author"
+          "Person"
         ],
-        "summary": "Delete Author",
+        "summary": "Delete Person",
         "parameters": [
           {
             "name": "id",
@@ -379,22 +379,28 @@
           }
         }
       },
-      "Article": {
+      "Car": {
         "type": "object",
         "properties": {
           "id": {
             "type": "integer"
           },
-          "title": {
+          "name": {
             "type": "string"
           },
-          "content": {
+          "model": {
             "type": "string"
           },
-          "status": {
+          "year": {
+            "type": "integer"
+          },
+          "price": {
+            "type": "number"
+          },
+          "color": {
             "type": "string"
           },
-          "publishedDate": {
+          "features": {
             "type": "string"
           },
           "createdAt": {
@@ -407,13 +413,25 @@
           }
         }
       },
-      "Author": {
+      "Person": {
         "type": "object",
         "properties": {
           "id": {
             "type": "integer"
           },
-          "name": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer"
+          },
+          "preferences": {
             "type": "string"
           },
           "createdAt": {

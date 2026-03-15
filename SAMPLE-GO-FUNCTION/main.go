@@ -159,22 +159,22 @@ api.GET("/metering/usage", meteringCtrl.GetUsage)
 searchCtrl := controllers.SearchController{DB: masterDB}
 api.GET("/rpc/:table", searchCtrl.GenericSearch)
 
-// Article Routes
-articleCtrl := controllers.ArticleController{DB: masterDB, Config: appConfig}
-api.POST("/articles", articleCtrl.Create)
-api.GET("/articles", articleCtrl.GetAll)
-api.GET("/articles/:id", articleCtrl.GetByID)
-api.PUT("/articles/:id", articleCtrl.Update)
-api.PATCH("/articles/:id", articleCtrl.Patch)
-api.DELETE("/articles/:id", articleCtrl.Delete)
-// Author Routes
-authorCtrl := controllers.AuthorController{DB: masterDB, Config: appConfig}
-api.POST("/authors", authorCtrl.Create)
-api.GET("/authors", authorCtrl.GetAll)
-api.GET("/authors/:id", authorCtrl.GetByID)
-api.PUT("/authors/:id", authorCtrl.Update)
-api.PATCH("/authors/:id", authorCtrl.Patch)
-api.DELETE("/authors/:id", authorCtrl.Delete)
+// Car Routes
+carCtrl := controllers.CarController{DB: masterDB, Config: appConfig}
+api.POST("/cars", carCtrl.Create)
+api.GET("/cars", carCtrl.GetAll)
+api.GET("/cars/:id", carCtrl.GetByID)
+api.PUT("/cars/:id", carCtrl.Update)
+api.PATCH("/cars/:id", carCtrl.Patch)
+api.DELETE("/cars/:id", carCtrl.Delete)
+// Person Routes
+personCtrl := controllers.PersonController{DB: masterDB, Config: appConfig}
+api.POST("/persons", personCtrl.Create)
+api.GET("/persons", personCtrl.GetAll)
+api.GET("/persons/:id", personCtrl.GetByID)
+api.PUT("/persons/:id", personCtrl.Update)
+api.PATCH("/persons/:id", personCtrl.Patch)
+api.DELETE("/persons/:id", personCtrl.Delete)
 // go-duck-needle-add-route
 }
 
