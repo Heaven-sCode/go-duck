@@ -54,8 +54,13 @@
 - **JHipster-style Needle Support**: Comment-based anchors (`go-duck-needle-*`) in key files for safe, evolutionary code injection.
 - **Atomic Operations**: Prevents "ghost" migration references; only updates master changelog if changes are physically written.
 
+#### 7. Gorgeous Automated Documentation
+- **Multi-page Developer Guide**: Auto-scaffolded gorgeous HTML portal with "Apple-style" modern UI.
+- **Brand Lore**: Integrated "Epic of GO-DUCK" narrative featuring the Gopher, the Duck, the Gin Bottle, and the Mark of Kratos.
+- **GDL Reference**: Live-generated data type tables and relationship diagrams.
+- **Deep Integration Guides**: Copy-pasteable snippets for Keycloak-secured gRPC, REST, and GraphQL.
+
 ### Roadmap (Upcoming Features)
-- **Automated Documentation**: Auto-generate gorgeous HTML Developer Guides for each microservice with sticky TOCs, code snippets, and integration tutorials.
 - **Automated Testing**: Generation of comprehensive Ginkgo/Gomega test suites.
 - **Scheduling**: Integrated Background Jobs and Cron task support.
 - **Storage Service**: MinIO/S3 integration for file uploads.
