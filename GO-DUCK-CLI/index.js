@@ -27,6 +27,8 @@ import { generateCacheCode } from './generators/cache.js';
 import { generateResilienceCode } from './generators/resilience.js';
 import { generateTelemetryCode } from './generators/telemetry.js';
 import { generateDeploymentArtifacts } from './generators/devops.js';
+import { generateKratosCode } from './generators/kratos.js';
+import { generateRepositoryCode } from './generators/repository.js';
 
 export const generateAuditCode = async (config, outputDir) => {
     const middlewareDir = path.join(outputDir, 'middleware');
@@ -322,6 +324,9 @@ program
         await generateDeploymentArtifacts(config, absoluteOutputDir);
         await generateYAMLConfigs(config, absoluteOutputDir);
         const { entities, relationships } = await generateEntities(path.join(path.resolve(process.cwd(), gdlDir), 'app.gdl'), absoluteOutputDir, config);
+        await generateKratosCode(entities, absoluteOutputDir, config.name);
+
+        await generateRepositoryCode(absoluteOutputDir);
 
         await generateGraphQLCode(config, entities, relationships, absoluteOutputDir);
         if (config.multitenancy?.enabled) await generateMultitenancy(config, absoluteOutputDir);
@@ -364,6 +369,9 @@ program
         await generateTelemetryCode(config, absoluteOutputDir);
         await generateDeploymentArtifacts(config, absoluteOutputDir);
         const { entities, relationships } = await generateEntities(path.resolve(process.cwd(), file), absoluteOutputDir, config);
+        await generateKratosCode(entities, absoluteOutputDir, config.name);
+
+        await generateRepositoryCode(absoluteOutputDir);
 
         await generateGraphQLCode(config, entities, relationships, absoluteOutputDir);
         // Sync PostgREST search as well
@@ -401,6 +409,11 @@ const generateYAMLConfigs = async (config, outputDir) => {
             port: 8080,
             'read-timeout': '30s',
             'write-timeout': '30s',
+            grpc: {
+                addr: ':9000',
+                network: 'tcp',
+                timeout: '1s'
+            },
             cors: {
                 'allow-origins': ['*'],
                 'allow-methods': ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
